@@ -1,0 +1,33 @@
+{
+  "name": "node-js-crud-sql-server",
+  "version": "1.0.0",
+  "description": "Node.js CRUD example with SQL Server",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon --exec babel-node -- server.js"
+  },
+  "keywords": [
+    "node js",
+    "sql server",
+    "mssql",
+    "crud",
+    "express",
+    "sequelize",
+    "rest api"
+  ],
+  "author": "bezkoder",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "sequelize": "^6.6.5",
+    "nodemon": "2.0.7",
+    "tedious": "^11.4.0",
+    "@babel/core": "7.13.1",
+    "@babel/node": "7.13.0",
+    "@babel/preset-env": "7.13.5",
+    "babel-loader": "8.2.2",
+    "body-parser": "1.19.0"
+  }
+}
