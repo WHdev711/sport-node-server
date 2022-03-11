@@ -9,5 +9,11 @@ module.exports = app => {
   // Retrieve all Ps3838 fixtures by SportIds
   router.get("/getfixtures", ps3838.GetFixtures);
 
+  // Add Alert config into Sqlite3.
+  router.post("/addalert", ps3838.AddAlert);
+
+  // Update Alert 
+  router.put("/addalert/:id", ps3838.UpdateAlert);
+
   app.use('/api/ps3838', router);
 };

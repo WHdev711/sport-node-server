@@ -2,6 +2,9 @@ const express = require("express");
 // const bodyParser = require("body-parser"); /* deprecated */
 const cors = require("cors");
 const axios = require('axios')
+const cron = require('node-cron');
+
+
 
 var contacts;
 axios
@@ -37,9 +40,26 @@ app.get("/", (req, res) => {
 });
 
 require("./app/routes/ps3838.routes")(app);
+// ...
+
+// Schedule tasks to be run on the server.
+const crontask = require("./app/controllers/ps3838.controller.js");
+
+cron.schedule('*/5 * * * *', function() {
+  console.log('running a task every minute qqqqqqqqq');
+  // testcron();
+  crontask.CronGetOdds();
+});
+
 
 // set port, listen for requests
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}.`);
 });
+
+
+// function testcron() {
+//   console.log('running a task every minute');
+
+// }
