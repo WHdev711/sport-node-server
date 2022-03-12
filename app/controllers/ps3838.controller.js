@@ -1,9 +1,26 @@
 const axios = require('axios');
 const PS3838Config = require("../config/ps3838.config.js");
 const db = require("../config/db.config.js");
+const nodemailer = require('nodemailer');
 
 
 let lasttimelist = { soccer: 0, basketball: 0, tennis: 0 };
+
+
+const transport = nodemailer.createTransport({
+    service: 'Gmail',
+    auth: {
+        user: 'appc31058@gmail.com',
+        pass: 'j99o8k7!@#',
+    },
+});
+const mailOptions = {
+    from: 'appc31058@gmail.com',
+    to: 'ddmitrivich0516@gmail.com',
+    subject: 'hello world!',
+    html: 'hello world!',
+};
+
 
 exports.GetOdds = async (req, res) => {
     var total = [];
@@ -135,9 +152,9 @@ exports.CronGetOdds = async () => {
                     });
                 });
             {
-                if (typeof _tmpfixture.league !== 'undefined' ) {
+                if (typeof _tmpfixture.league !== 'undefined') {
                     var _tmpleage = _tmpfixture.league
-                    console.log("dfdfdfdfdfdf",_tmpfixture.league);
+                    console.log("dfdfdfdfdfdf", _tmpfixture.league);
                     for (var i = 0; i < _tmpleage.length; i++) {
                         for (var j = 0; j < _tmpleage[i].events.length; j++) {
                             var eventtmp = {
@@ -159,65 +176,71 @@ exports.CronGetOdds = async () => {
     console.log("===============================")
     console.log(JSON.stringify(lasttimelist), total.length)
     // res.send(total);
-    for ( var i = 0; i < total.length; i++) {
-        db.get("SELECT * FROM alert WHERE league = ? or clubname = ? or clubname = ?", total[i].league, total[i].homegame, total[i].awaygame, function(err, row) {
-           if (row) {
-
-               console.log("success =======================================");
-           }
+    for (var i = 0; i < total.length; i++) {
+        db.get("SELECT * FROM alert WHERE league = ? or clubname = ? or clubname = ?", total[i].league, total[i].homegame, total[i].awaygame, function (err, row) {
+            if (row) {
+                // node mail 
+                console.log("Sending notification about matched sport game");
+                transport.sendMail(mailOptions, (error, info) => {
+                    if (error) {
+                        console.log(error);
+                    }
+                    console.log(`Message sent: ${info.response}`);
+                });
+            }
         })
     }
 };
 
-exports.AddAlert = async (req, res) => { 
- console.log("this is addalert")
- var errors=[]
- console.log(req.body)
- if (!req.body.name){
-     errors.push("No Name specified");
- }
+exports.AddAlert = async (req, res) => {
+    console.log("this is addalert")
+    var errors = []
+    console.log(req.body)
+    if (!req.body.name) {
+        errors.push("No Name specified");
+    }
 
- if (!req.body.email){
-    errors.push("No Email specified");
-}
+    if (!req.body.email) {
+        errors.push("No Email specified");
+    }
 
 
-var _country = req.body.country ? req.body.country: '';
-var _clubname = req.body.clubname ? req.body.clubname: '';
-var _league = req.body.league ? req.body.league: '';
+    var _country = req.body.country ? req.body.country : '';
+    var _clubname = req.body.clubname ? req.body.clubname : '';
+    var _league = req.body.league ? req.body.league : '';
 
- if (errors.length){
-     res.status(400).json({"error":errors.join(",")});
-     return;
- }
- var data = {
-     name: req.body.name,
-     email: req.body.email,
-     league: _league,
-     country: _country,
-     clubname: _clubname,
- }
- var sql ='INSERT INTO alert (name, email, league, country, clubname) VALUES (?,?,?,?,?)'
- var params =[data.name, data.email, data.league, data.country, data.clubname]
- db.get("SELECT * FROM alert WHERE name = ? LIMIT 1", req.body.name, function(err, row) {
-     if (row) {
-         console.log("here account already exists");
-        res.json({"message":"Account already exists"});
-     } else {
+    if (errors.length) {
+        res.status(400).json({ "error": errors.join(",") });
+        return;
+    }
+    var data = {
+        name: req.body.name,
+        email: req.body.email,
+        league: _league,
+        country: _country,
+        clubname: _clubname,
+    }
+    var sql = 'INSERT INTO alert (name, email, league, country, clubname) VALUES (?,?,?,?,?)'
+    var params = [data.name, data.email, data.league, data.country, data.clubname]
+    db.get("SELECT * FROM alert WHERE name = ? LIMIT 1", req.body.name, function (err, row) {
+        if (row) {
+            console.log("here account already exists");
+            res.json({ "message": "Account already exists" });
+        } else {
 
-         db.run(sql, params, function (err, result) {
-             if (err){
-                 res.status(400).json({"error": err.message})
-                 return;
-             }
-             res.json({
-                 "message": "success",
-                 "data": result,
-                 "id" : this.lastID
-             })
-         });
-     }
- });
+            db.run(sql, params, function (err, result) {
+                if (err) {
+                    res.status(400).json({ "error": err.message })
+                    return;
+                }
+                res.json({
+                    "message": "success",
+                    "data": result,
+                    "id": this.lastID
+                })
+            });
+        }
+    });
 
 
 };
@@ -226,8 +249,8 @@ exports.GetAlert = (req, res) => {
     db.all(
         `SELECT * FROM alert`,
         function (err, result) {
-            if (err){
-                res.status(400).json({"error": res.message})
+            if (err) {
+                res.status(400).json({ "error": res.message })
                 return;
             }
             res.json({
@@ -235,13 +258,13 @@ exports.GetAlert = (req, res) => {
                 data: result,
                 changes: this.changes
             })
-    });
+        });
 };
 
 exports.UpdateAlert = (req, res) => {
-    var _country = req.body.country ? req.body.country: '';
-    var _clubname = req.body.clubname ? req.body.clubname: '';
-    var _league = req.body.league ? req.body.league: '';
+    var _country = req.body.country ? req.body.country : '';
+    var _clubname = req.body.clubname ? req.body.clubname : '';
+    var _league = req.body.league ? req.body.league : '';
     var data = {
         name: req.body.name,
         email: req.body.email,
@@ -257,10 +280,10 @@ exports.UpdateAlert = (req, res) => {
            country = COALESCE(?,country), 
            clubname = COALESCE(?,clubname) 
            WHERE id = ?`,
-        [data.name, data.email, data.league, data.country,data.clubname, req.params.id],
+        [data.name, data.email, data.league, data.country, data.clubname, req.params.id],
         function (err, result) {
-            if (err){
-                res.status(400).json({"error": res.message})
+            if (err) {
+                res.status(400).json({ "error": res.message })
                 return;
             }
             res.json({
@@ -268,7 +291,7 @@ exports.UpdateAlert = (req, res) => {
                 data: data,
                 changes: this.changes
             })
-    });
+        });
 };
 
 exports.DeleteAlert = (req, res) => {
@@ -276,10 +299,10 @@ exports.DeleteAlert = (req, res) => {
         'DELETE FROM alert WHERE id = ?',
         req.params.id,
         function (err, result) {
-            if (err){
-                res.status(400).json({"error": res.message})
+            if (err) {
+                res.status(400).json({ "error": res.message })
                 return;
             }
-            res.json({"message":"deleted", changes: this.changes})
-    });
+            res.json({ "message": "deleted", changes: this.changes })
+        });
 };
