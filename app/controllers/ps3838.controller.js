@@ -172,7 +172,7 @@ exports.CronGetOdds = async () => {
 exports.AddAlert = async (req, res) => { 
  console.log("this is addalert")
  var errors=[]
- console.log(req)
+ console.log(req.body)
  if (!req.body.name){
      errors.push("No Name specified");
  }
@@ -181,9 +181,7 @@ exports.AddAlert = async (req, res) => {
     errors.push("No Email specified");
 }
 
- if (((!req.body.country && !req.body.clubname) || (req.body.country && req.body.clubname)) && req.body.league ){
-    errors.push("No country and club name or No league specified");
-}
+
 var _country = req.body.country ? req.body.country: '';
 var _clubname = req.body.clubname ? req.body.clubname: '';
 var _league = req.body.league ? req.body.league: '';
@@ -223,6 +221,22 @@ var _league = req.body.league ? req.body.league: '';
 
 };
 
+exports.GetAlert = (req, res) => {
+    db.all(
+        `SELECT * FROM alert`,
+        function (err, result) {
+            if (err){
+                res.status(400).json({"error": res.message})
+                return;
+            }
+            res.json({
+                message: "success",
+                data: result,
+                changes: this.changes
+            })
+    });
+};
+
 exports.UpdateAlert = (req, res) => {
     var _country = req.body.country ? req.body.country: '';
     var _clubname = req.body.clubname ? req.body.clubname: '';
@@ -242,7 +256,7 @@ exports.UpdateAlert = (req, res) => {
            country = COALESCE(?,country), 
            clubname = COALESCE(?,clubname) 
            WHERE id = ?`,
-        [data.name, data.league, data.country,data.clubname, req.params.id],
+        [data.name, data.email, data.league, data.country,data.clubname, req.params.id],
         function (err, result) {
             if (err){
                 res.status(400).json({"error": res.message})
@@ -253,5 +267,18 @@ exports.UpdateAlert = (req, res) => {
                 data: data,
                 changes: this.changes
             })
+    });
+};
+
+exports.DeleteAlert = (req, res) => {
+    db.run(
+        'DELETE FROM alert WHERE id = ?',
+        req.params.id,
+        function (err, result) {
+            if (err){
+                res.status(400).json({"error": res.message})
+                return;
+            }
+            res.json({"message":"deleted", changes: this.changes})
     });
 };
