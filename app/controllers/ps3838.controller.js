@@ -201,6 +201,7 @@ var _league = req.body.league ? req.body.league: '';
  var params =[data.name, data.email, data.league, data.country, data.clubname]
  db.get("SELECT * FROM alert WHERE name = ? LIMIT 1", req.body.name, function(err, row) {
      if (row) {
+         console.log("here account already exists");
         res.json({"message":"Account already exists"});
      } else {
 
@@ -211,7 +212,7 @@ var _league = req.body.league ? req.body.league: '';
              }
              res.json({
                  "message": "success",
-                 "data": data,
+                 "data": result,
                  "id" : this.lastID
              })
          });
