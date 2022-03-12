@@ -11,7 +11,6 @@ axios
   .get('https://api.ps3838.com/v3/sports', { headers: { 'Authorization': 'Basic QklBMDAwMzcxQjpWYXNjb2NhYnJvbjI0' } })
   .then(res => {
     contacts = res.data;
-    // console.log(contacts);
   })
   .catch(error => {
     console.error(error)
@@ -46,7 +45,7 @@ require("./app/routes/ps3838.routes")(app);
 const crontask = require("./app/controllers/ps3838.controller.js");
 
 cron.schedule('*/5 * * * *', function() {
-  console.log('running a task every minute qqqqqqqqq');
+  console.log('running a task every 5 minutes');
   // testcron();
   crontask.CronGetOdds();
 });
@@ -58,8 +57,3 @@ app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}.`);
 });
 
-
-// function testcron() {
-//   console.log('running a task every minute');
-
-// }

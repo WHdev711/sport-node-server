@@ -61,7 +61,6 @@ exports.GetOdds = async (req, res) => {
                     return fixdata
                 })
                 .catch(error => {
-                    console.log("error")
                     res.status(500).send({
                         message:
                             error.message || "Some error occurred while retrieving data."
@@ -107,7 +106,7 @@ exports.GetFixtures = async (req, res) => {
 };
 
 exports.CronGetOdds = async () => {
-    console.log('running a task every minute');
+    console.log('running a task every 5minutes');
 
     var total = [];
     const sportlist = { soccer: PS3838Config.Soccer, basketball: PS3838Config.Basketball, tennis: PS3838Config.Tennis };
@@ -141,11 +140,9 @@ exports.CronGetOdds = async () => {
                 .get(`${PS3838Config.FIXTURES}?${sportlist[_sport]}&eventIds=${eventlist.slice(h * 500, (h + 1) * 500).toString()}&since=${lasttimelist[_sport]}`, { headers: { 'Authorization': `Basic ${PS3838Config.HeaderBasic}` } })
                 .then(response => {
                     const fixdata = response.data
-                    // console.log("&&&&&&&&&&&&&&&&&&&\n", fixdata)
                     return fixdata
                 })
                 .catch(error => {
-                    console.log("error")
                     res.status(500).send({
                         message:
                             error.message || "Some error occurred while retrieving data."
@@ -154,7 +151,6 @@ exports.CronGetOdds = async () => {
             {
                 if (typeof _tmpfixture.league !== 'undefined') {
                     var _tmpleage = _tmpfixture.league
-                    console.log("dfdfdfdfdfdf", _tmpfixture.league);
                     for (var i = 0; i < _tmpleage.length; i++) {
                         for (var j = 0; j < _tmpleage[i].events.length; j++) {
                             var eventtmp = {
@@ -173,7 +169,6 @@ exports.CronGetOdds = async () => {
         }
         lasttimelist[_sport] = allodds.last;
     }
-    console.log("===============================")
     console.log(JSON.stringify(lasttimelist), total.length)
     // res.send(total);
     for (var i = 0; i < total.length; i++) {
@@ -193,7 +188,6 @@ exports.CronGetOdds = async () => {
 };
 
 exports.AddAlert = async (req, res) => {
-    console.log("this is addalert")
     var errors = []
     console.log(req.body)
     if (!req.body.name) {
@@ -224,7 +218,7 @@ exports.AddAlert = async (req, res) => {
     var params = [data.name, data.email, data.league, data.country, data.clubname]
     db.get("SELECT * FROM alert WHERE name = ? LIMIT 1", req.body.name, function (err, row) {
         if (row) {
-            console.log("here account already exists");
+            console.log("account already exists");
             res.json({ "message": "Account already exists" });
         } else {
 
