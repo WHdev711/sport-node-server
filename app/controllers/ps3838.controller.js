@@ -180,7 +180,12 @@ exports.CronGetOdds = async () => {
                     if (error) {
                         console.log(error);
                     }
-                    console.log(`Message sent: ${info.response}`);
+                    try{
+                        console.log(`Message sent: ${info.response}`);
+                    }
+                    catch (res_error) {
+                        console.log(res_error);
+                    }
                 });
             }
         })
