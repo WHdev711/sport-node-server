@@ -8,7 +8,7 @@ const cron = require('node-cron');
 
 var contacts;
 axios
-  .get('https://api.ps3838.com/v3/sports', { headers: { 'Authorization': 'Basic QklBMDAwMzcxQjpWYXNjb2NhYnJvbjI0' } })
+  .get('https://api.ps3838.com/v3/sports', { headers: { 'Authorization': 'Basic "please intput base encoded value"' } })
   .then(res => {
     contacts = res.data;
   })
